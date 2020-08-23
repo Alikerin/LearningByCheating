@@ -1,3 +1,11 @@
+# @Author: Ibrahim Salihu Yusuf <yusuf>
+# @Date:   2020-08-23T06:08:25+01:00
+# @Email:  sibrahim1396@gmail.com
+# @Last modified by:   yusuf
+# @Last modified time: 2020-08-23T06:29:19+01:00
+
+
+
 import collections
 import queue
 import weakref
@@ -178,15 +186,15 @@ class PedestrianTracker(object):
         self._wrapper = wrapper()
         self._peds = peds
         self._ped_controllers = ped_controllers
-        
+
         self._ped_timers = dict()
         for ped in peds:
             self._ped_timers[ped.id] = 0
-        
+
         self._speed_threshold = speed_threshold
         self._stuck_limit = stuck_limit
         self._respawn_peds = respawn_peds
-            
+
     def tick(self):
         for ped in self._peds:
             vel = ped.get_velocity()
@@ -196,7 +204,7 @@ class PedestrianTracker(object):
                 self._ped_timers[ped.id] += 1
             else:
                 self._ped_timers[ped.id] = 0
-        
+
         stuck_ped_ids = []
         for ped_id, stuck_time in self._ped_timers.items():
             if stuck_time >= self._stuck_limit and self._respawn_peds:
@@ -208,7 +216,7 @@ class PedestrianTracker(object):
             ped_id = ped_controller.parent.id
             if ped_id not in stuck_ped_ids:
                 continue
-            
+
             self._ped_timers.pop(ped_id)
 
             old_loc = ped.get_location()
@@ -220,10 +228,10 @@ class PedestrianTracker(object):
                                     and _loc.distance(old_loc) >= 10.0:
                     loc = _loc
                     break
-            
+
             ped_controller.teleport_to_location(loc)
             print ("Teleported walker %d to %s"%(ped_id, loc))
-        
+
 
 class TrafficTracker(object):
     LANE_WIDTH = 5.0
@@ -238,7 +246,7 @@ class TrafficTracker(object):
         self.total_lights_ran = 0
         self.total_lights = 0
         self.ran_light = False
-        
+
         self.last_light_id = -1
 
     def tick(self):
@@ -251,11 +259,11 @@ class TrafficTracker(object):
 
         light = TrafficTracker.get_active_light(self._agent, self._world)
         active_light = light
-        
+
         if light is not None and light.id != self.last_light_id:
             self.total_lights += 1
             self.last_light_id = light.id
-            
+
         light = TrafficTracker.get_closest_light(self._agent, self._world)
 
         if light is None or light.state != carla.libcarla.TrafficLightState.Red:
@@ -295,22 +303,22 @@ class TrafficTracker(object):
 
     @staticmethod
     def get_active_light(ego_vehicle, world):
-        
+
         _map = world.get_map()
         ego_vehicle_location = ego_vehicle.get_location()
         ego_vehicle_waypoint = _map.get_waypoint(ego_vehicle_location)
-        
+
         lights_list = world.get_actors().filter('*traffic_light*')
-        
+
         for traffic_light in lights_list:
             location = traffic_light.get_location()
             object_waypoint = _map.get_waypoint(location)
-            
+
             if object_waypoint.road_id != ego_vehicle_waypoint.road_id:
                 continue
             if object_waypoint.lane_id != ego_vehicle_waypoint.lane_id:
                 continue
-            
+
             if not is_within_distance_ahead(
                     location,
                     ego_vehicle_location,
@@ -343,12 +351,12 @@ class CarlaWrapper(object):
     def __init__(
             self, town='Town01', vehicle_name=VEHICLE_NAME, port=2000, client=None,
             col_threshold=400, big_cam=False, seed=None, respawn_peds=True, **kwargs):
-        
-        if client is None:    
+
+        if client is None:
             self._client = carla.Client('localhost', port)
         else:
             self._client = client
-            
+
         self._client.set_timeout(30.0)
 
         set_sync_mode(self._client, False)
@@ -384,12 +392,12 @@ class CarlaWrapper(object):
         self.rgb_image = None
         self._big_cam_queue = None
         self.big_cam_image = None
-        
+
         self.seed = seed
 
         self._respawn_peds = respawn_peds
         self.disable_two_wheels = False
-        
+
 
     def spawn_vehicles(self):
 
@@ -401,7 +409,7 @@ class CarlaWrapper(object):
         for i in range(self.n_vehicles):
             blueprint = np.random.choice(blueprints)
             blueprint.set_attribute('role_name', 'autopilot')
-    
+
             if blueprint.has_attribute('color'):
                 color = np.random.choice(blueprint.get_attribute('color').recommended_values)
                 blueprint.set_attribute('color', color)
@@ -409,7 +417,7 @@ class CarlaWrapper(object):
             if blueprint.has_attribute('driver_id'):
                 driver_id = np.random.choice(blueprint.get_attribute('driver_id').recommended_values)
                 blueprint.set_attribute('driver_id', driver_id)
-            
+
             vehicle = None
             while vehicle is None:
                 vehicle = self._world.try_spawn_actor(blueprint, np.random.choice(spawn_points))
@@ -425,56 +433,56 @@ class CarlaWrapper(object):
         SpawnActor = carla.command.SpawnActor
 
         peds_spawned = 0
-        
+
         walkers = []
         controllers = []
-        
+
         while peds_spawned < n_pedestrians:
             spawn_points = []
             _walkers = []
             _controllers = []
-            
+
             for i in range(n_pedestrians - peds_spawned):
                 spawn_point = carla.Transform()
                 loc = self._world.get_random_location_from_navigation()
-    
+
                 if loc is not None:
                     spawn_point.location = loc
                     spawn_points.append(spawn_point)
-    
+
             blueprints = self._blueprints.filter('walker.pedestrian.*')
             batch = []
             for spawn_point in spawn_points:
                 walker_bp = random.choice(blueprints)
-    
+
                 if walker_bp.has_attribute('is_invincible'):
                     walker_bp.set_attribute('is_invincible', 'false')
-    
+
                 batch.append(SpawnActor(walker_bp, spawn_point))
-    
+
             for result in self._client.apply_batch_sync(batch, True):
                 if result.error:
                     print(result.error)
                 else:
                     peds_spawned += 1
                     _walkers.append(result.actor_id)
-    
+
             walker_controller_bp = self._blueprints.find('controller.ai.walker')
             batch = [SpawnActor(walker_controller_bp, carla.Transform(), walker) for walker in _walkers]
-    
+
             for result in self._client.apply_batch_sync(batch, True):
                 if result.error:
                     print(result.error)
                 else:
                     _controllers.append(result.actor_id)
-                    
+
             controllers.extend(_controllers)
             walkers.extend(_walkers)
 
         print ("spawned %d pedestrians"%len(controllers))
 
         return self._world.get_actors(walkers), self._world.get_actors(controllers)
-        
+
     def set_weather(self, weather_string):
         if weather_string == 'random':
             weather = np.random.choice(WEATHERS)
@@ -491,30 +499,30 @@ class CarlaWrapper(object):
             self.n_vehicles = n_vehicles or self.n_vehicles
             self.n_pedestrians = n_pedestrians or self.n_pedestrians
             self._start_pose = self._map.get_spawn_points()[start]
-    
+
             self.clean_up()
             self.spawn_player()
             self._setup_sensors()
-    
+
             # Hiding away the gore.
             map_utils.init(self._client, self._world, self._map, self._player)
-    
+
             # Deterministic.
             if self.seed is not None:
                 np.random.seed(self.seed)
-    
+
             self.set_weather(weather)
-            
+
             # Spawn vehicles
             self.spawn_vehicles()
-            
+
             # Spawn pedestrians
             peds, ped_controllers = self.spawn_pedestrians(self.n_pedestrians)
             self._actor_dict['pedestrian'].extend(peds)
             self._actor_dict['ped_controller'].extend(ped_controllers)
-            
+
             self.peds_tracker = PedestrianTracker(weakref.ref(self), self.pedestrians, self.ped_controllers, respawn_peds=self._respawn_peds)
-    
+
             self.traffic_tracker = TrafficTracker(self._player, self._world)
 
             ready = self.ready()
@@ -526,7 +534,7 @@ class CarlaWrapper(object):
         self._player.set_autopilot(False)
         self._player.start_dtcrowd()
         self._actor_dict['player'].append(self._player)
-        
+
 
     def ready(self, ticks=50):
         self.tick()
@@ -536,7 +544,7 @@ class CarlaWrapper(object):
             controller.start()
             controller.go_to_location(self._world.get_random_location_from_navigation())
             controller.set_max_speed(1 + random.random())
-        
+
         for _ in range(ticks):
             self.tick()
             self.get_observations()
@@ -546,9 +554,9 @@ class CarlaWrapper(object):
 
         self._time_start = time.time()
         self._tick = 0
-        
+
         print ("Initial collided: %s"%self.collided)
-        
+
         return not self.collided
 
     def tick(self):
@@ -564,7 +572,7 @@ class CarlaWrapper(object):
         # Put here for speed (get() busy polls queue).
         while self.rgb_image is None or self._rgb_queue.qsize() > 0:
             self.rgb_image = self._rgb_queue.get()
-        
+
         if self._big_cam:
             while self.big_cam_image is None or self._big_cam_queue.qsize() > 0:
                 self.big_cam_image = self._big_cam_queue.get()
@@ -605,7 +613,7 @@ class CarlaWrapper(object):
         for vehicle in self._actor_dict['vehicle']:
             # continue
             vehicle.stop_dtcrowd()
-        
+
         for controller in self._actor_dict['ped_controller']:
             controller.stop()
 
@@ -620,7 +628,7 @@ class CarlaWrapper(object):
 
         self._tick = 0
         self._time_start = time.time()
-        
+
         if self._player:
             self._player.stop_dtcrowd()
         self._player = None
@@ -629,15 +637,15 @@ class CarlaWrapper(object):
         if self._rgb_queue:
             with self._rgb_queue.mutex:
                 self._rgb_queue.queue.clear()
-        
+
         if self._big_cam_queue:
             with self._big_cam_queue.mutex:
                 self._big_cam_queue.queue.clear()
-    
+
     @property
     def pedestrians(self):
         return self._actor_dict.get('pedestrian', [])
-        
+
     @property
     def ped_controllers(self):
         return self._actor_dict.get('ped_controller', [])
@@ -648,34 +656,73 @@ class CarlaWrapper(object):
         Add sensors to _actor_dict to be cleaned up.
         """
         # Camera.
-        self._rgb_queue = queue.Queue()
+        # self._rgb_queue = queue.Queue()
+        #
+        # if self._big_cam:
+        #     self._big_cam_queue = queue.Queue()
+        #     rgb_camera_bp = self._blueprints.find('sensor.camera.rgb')
+        #     rgb_camera_bp.set_attribute('image_size_x', '800')
+        #     rgb_camera_bp.set_attribute('image_size_y', '600')
+        #     rgb_camera_bp.set_attribute('fov', '90')
+        #     big_camera = self._world.spawn_actor(
+        #         rgb_camera_bp,
+        #         carla.Transform(carla.Location(x=1.0, z=1.4), carla.Rotation(pitch=0)),
+        #         attach_to=self._player)
+        #     big_camera.listen(self._big_cam_queue.put)
+        #     self._actor_dict['sensor'].append(big_camera)
+        #
+        # rgb_camera_bp = self._blueprints.find('sensor.camera.rgb')
+        # rgb_camera_bp.set_attribute('image_size_x', '384')
+        # rgb_camera_bp.set_attribute('image_size_y', '160')
+        # rgb_camera_bp.set_attribute('fov', '90')
+        # rgb_camera = self._world.spawn_actor(
+        #     rgb_camera_bp,
+        #     carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=0)),
+        #     attach_to=self._player)
+        #
+        # rgb_camera.listen(self._rgb_queue.put)
+        # self._actor_dict['sensor'].append(rgb_camera)
 
-        if self._big_cam:
-            self._big_cam_queue = queue.Queue()
-            rgb_camera_bp = self._blueprints.find('sensor.camera.rgb')
-            rgb_camera_bp.set_attribute('image_size_x', '800')
-            rgb_camera_bp.set_attribute('image_size_y', '600')
-            rgb_camera_bp.set_attribute('fov', '90')
-            big_camera = self._world.spawn_actor(
-                rgb_camera_bp,
-                carla.Transform(carla.Location(x=1.0, z=1.4), carla.Rotation(pitch=0)),
-                attach_to=self._player)
-            big_camera.listen(self._big_cam_queue.put)
-            self._actor_dict['sensor'].append(big_camera)
-            
-        rgb_camera_bp = self._blueprints.find('sensor.camera.rgb')
-        rgb_camera_bp.set_attribute('image_size_x', '384')
-        rgb_camera_bp.set_attribute('image_size_y', '160')
-        rgb_camera_bp.set_attribute('fov', '90')
-        rgb_camera = self._world.spawn_actor(
-            rgb_camera_bp,
-            carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=0)),
+        #add my cameras
+        self._leftrgb_queue = queue.Queue()
+        leftrgb_bp = self._blueprints.find('sensor.camera.rgb')
+        leftrgb_bp.set_attribute('image_size_x', '800')
+        leftrgb_bp.set_attribute('image_size_y', '600')
+        leftrgb_bp.set_attribute('fov', '100')
+        leftrgb_camera = self._world.spawn_actor(
+            leftrgb_bp,
+            carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=-15.0, yaw=-30.0, roll=0)),
+            attach_to=self._player)
+        
+        leftrgb_camera.listen(self._leftrgb_queue.put)
+        self._actor_dict['sensor'].append(leftrgb_camera)
+
+        self._rightrgb_queue = queue.Queue()
+        rightrgb_bp = self._blueprints.find('sensor.camera.rgb')
+        rightrgb_bp.set_attribute('image_size_x', '800')
+        rightrgb_bp.set_attribute('image_size_y', '600')
+        rightrgb_bp.set_attribute('fov', '100')
+        rightrgb_camera = self._world.spawn_actor(
+            rightrgb_bp,
+            carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=-15.0, yaw=30.0, roll=0)),
             attach_to=self._player)
 
-        rgb_camera.listen(self._rgb_queue.put)
-        self._actor_dict['sensor'].append(rgb_camera)
-        
-        
+        rightrgb_camera.listen(self._rightrgb_queue.put)
+        self._actor_dict['sensor'].append(rightrgb_camera)
+
+        self._centralrgb_queue = queue.Queue()
+        centralrgb_bp = self._blueprints.find('sensor.camera.rgb')
+        centralrgb_bp.set_attribute('image_size_x', '800')
+        centralrgb_bp.set_attribute('image_size_y', '600')
+        centralrgb_bp.set_attribute('fov', '100')
+        centralrgb_camera = self._world.spawn_actor(
+            centralrgb_bp,
+            carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=-15.0, yaw=0, roll=0)),
+            attach_to=self._player)
+
+        centralrgb_camera.listen(self._rightrgb_queue.put)
+        self._actor_dict['sensor'].append(centralrgb_camera)
+
 
         # Collisions.
         self.collided = False
