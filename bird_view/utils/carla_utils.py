@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-08-23T06:35:30+01:00
+# @Last modified time: 2020-08-23T06:37:33+01:00
 
 
 
@@ -122,8 +122,11 @@ def get_birdview(observations):
 
 def process(observations):
     result = dict()
-    result['rgb'] = observations['rgb'].copy()
-    result['birdview'] = observations['birdview'].copy()
+    # result['rgb'] = observations['rgb'].copy()
+    # result['birdview'] = observations['birdview'].copy()
+    result['leftrgb'] = observations['leftrgb'].copy()
+    result['rightrgb'] = observations['rightrgb'].copy()
+    result['centralrgb'] = observations['centralrgb'].copy()
     result['collided'] = observations['collided']
 
     control = observations['control']
@@ -583,7 +586,7 @@ class CarlaWrapper(object):
 
         while self.leftrgb_image is None or self._leftrgb_queue.qsize() > 0:
             self.leftrgb_image = self._leftrgb_queue.get()
-            
+
         while self.rightrgb_image is None or self._rightrgb_queue.qsize() > 0:
             self.rightrgb_image = self._rightrgb_queue.get()
 
