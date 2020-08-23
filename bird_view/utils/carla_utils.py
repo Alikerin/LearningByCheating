@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-08-23T06:37:33+01:00
+# @Last modified time: 2020-08-23T06:39:49+01:00
 
 
 
@@ -600,15 +600,17 @@ class CarlaWrapper(object):
         result.update(map_utils.get_observations())
         # print ("%.3f, %.3f"%(self.rgb_image.timestamp, self._world.get_snapshot().timestamp.elapsed_seconds))
         result.update({
-            'rgb': carla_img_to_np(self.rgb_image),
-            'birdview': get_birdview(result),
+            'leftrgb': carla_img_to_np(self.leftrgb_image),
+            'rightrgb': carla_img_to_np(self.rightrgb_image),
+            'centralrgb': carla_img_to_np(self.centralrgb_image),
+            # 'birdview': get_birdview(result),
             'collided': self.collided
             })
 
-        if self._big_cam:
-            result.update({
-                'big_cam': carla_img_to_np(self.big_cam_image),
-            })
+        # if self._big_cam:
+        #     result.update({
+        #         'big_cam': carla_img_to_np(self.big_cam_image),
+        #     })
 
         return result
 
