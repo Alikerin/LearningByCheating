@@ -1,3 +1,11 @@
+# @Author: Ibrahim Salihu Yusuf <yusuf>
+# @Date:   2020-08-23T06:08:25+01:00
+# @Email:  sibrahim1396@gmail.com
+# @Last modified by:   yusuf
+# @Last modified time: 2020-08-23T06:43:00+01:00
+
+
+
 """
 Stores tuples of (birdview, measurements, rgb).
 
@@ -239,11 +247,17 @@ def main(params):
 
                 for i, x in enumerate(data):
                     txn.put(
-                            ('rgb_%04d' % i).encode(),
-                            np.ascontiguousarray(x['rgb']).astype(np.uint8))
+                            ('leftrgb_%04d' % i).encode(),
+                            np.ascontiguousarray(x['leftrgb']).astype(np.uint8))
                     txn.put(
-                            ('birdview_%04d' % i).encode(),
-                            np.ascontiguousarray(x['birdview']).astype(np.uint8))
+                            ('rightrgb_%04d' % i).encode(),
+                            np.ascontiguousarray(x['rightrgb']).astype(np.uint8))
+                    txn.put(
+                            ('centralrgb_%04d' % i).encode(),
+                            np.ascontiguousarray(x['centralrgb']).astype(np.uint8))
+                    # txn.put(
+                    #         ('birdview_%04d' % i).encode(),
+                    #         np.ascontiguousarray(x['birdview']).astype(np.uint8))
                     txn.put(
                             ('measurements_%04d' % i).encode(),
                             np.ascontiguousarray(x['measurements']).astype(np.float32))
