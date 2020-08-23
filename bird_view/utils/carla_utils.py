@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-08-23T06:29:19+01:00
+# @Last modified time: 2020-08-23T06:35:30+01:00
 
 
 
@@ -388,10 +388,14 @@ class CarlaWrapper(object):
         self.n_vehicles = 0
         self.n_pedestrians = 0
 
-        self._rgb_queue = None
-        self.rgb_image = None
-        self._big_cam_queue = None
-        self.big_cam_image = None
+        self._leftrgb_queue = None
+        self.leftrgb_image = None
+        self._rightrgb_queue = None
+        self.rightrgb_image = None
+        self._centralrgb_queue = None
+        self.centralrgb_image = None
+        # self._big_cam_queue = None
+        # self.big_cam_image = None
 
         self.seed = seed
 
@@ -573,9 +577,18 @@ class CarlaWrapper(object):
         while self.rgb_image is None or self._rgb_queue.qsize() > 0:
             self.rgb_image = self._rgb_queue.get()
 
-        if self._big_cam:
-            while self.big_cam_image is None or self._big_cam_queue.qsize() > 0:
-                self.big_cam_image = self._big_cam_queue.get()
+        # if self._big_cam:
+        #     while self.big_cam_image is None or self._big_cam_queue.qsize() > 0:
+        #         self.big_cam_image = self._big_cam_queue.get()
+
+        while self.leftrgb_image is None or self._leftrgb_queue.qsize() > 0:
+            self.leftrgb_image = self._leftrgb_queue.get()
+            
+        while self.rightrgb_image is None or self._rightrgb_queue.qsize() > 0:
+            self.rightrgb_image = self._rightrgb_queue.get()
+
+        while self.centralrgb_image is None or self._centralrgb_queue.qsize() > 0:
+            self.centralrgb_image = self._centralrgb_queue.get()
 
         return True
 
@@ -693,7 +706,7 @@ class CarlaWrapper(object):
             leftrgb_bp,
             carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=-15.0, yaw=-30.0, roll=0)),
             attach_to=self._player)
-        
+
         leftrgb_camera.listen(self._leftrgb_queue.put)
         self._actor_dict['sensor'].append(leftrgb_camera)
 
