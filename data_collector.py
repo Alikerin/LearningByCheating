@@ -1,11 +1,3 @@
-# @Author: Ibrahim Salihu Yusuf <yusuf>
-# @Date:   2020-08-23T06:08:25+01:00
-# @Email:  sibrahim1396@gmail.com
-# @Last modified by:   yusuf
-# @Last modified time: 2020-09-14T12:39:41+01:00
-
-
-
 """
 Stores tuples of (birdview, measurements, rgb).
 
@@ -21,6 +13,7 @@ python3 bird_view/data_collector.py \
         --n_vehicles 0 \
         --n_pedestrians 0
 """
+import torchvision
 import argparse
 
 from pathlib import Path
@@ -38,6 +31,7 @@ from bird_view.utils import bz_utils as bu
 from bird_view.models.common import crop_birdview
 from bird_view.models.controller import PIDController
 from bird_view.models.roaming import RoamingAgentMine
+
 
 def _debug(observations, agent_debug):
     import cv2
@@ -246,17 +240,11 @@ def main(params):
 
                 for i, x in enumerate(data):
                     txn.put(
-                            ('leftrgb_%04d' % i).encode(),
-                            np.ascontiguousarray(x['leftrgb']).astype(np.uint8))
+                            ('rgb_%04d' % i).encode(),
+                            np.ascontiguousarray(x['rgb']).astype(np.uint8))
                     txn.put(
-                            ('rightrgb_%04d' % i).encode(),
-                            np.ascontiguousarray(x['rightrgb']).astype(np.uint8))
-                    txn.put(
-                            ('centralrgb_%04d' % i).encode(),
-                            np.ascontiguousarray(x['centralrgb']).astype(np.uint8))
-                    # txn.put(
-                    #         ('birdview_%04d' % i).encode(),
-                    #         np.ascontiguousarray(x['birdview']).astype(np.uint8))
+                            ('birdview_%04d' % i).encode(),
+                            np.ascontiguousarray(x['birdview']).astype(np.uint8))
                     txn.put(
                             ('measurements_%04d' % i).encode(),
                             np.ascontiguousarray(x['measurements']).astype(np.float32))
