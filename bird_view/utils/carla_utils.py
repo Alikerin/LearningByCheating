@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-08-23T06:40:49+01:00
+# @Last modified time: 2020-09-14T18:36:19+01:00
 
 
 
@@ -139,6 +139,7 @@ def process(observations):
             observations['orientation'],
             observations['velocity'],
             observations['acceleration'],
+            observations['rotation'],
             observations['command'].value,
             observations['control'].steer,
             observations['control'].throttle,
@@ -652,13 +653,21 @@ class CarlaWrapper(object):
         self._player = None
 
         # Clean-up cameras
-        if self._rgb_queue:
-            with self._rgb_queue.mutex:
-                self._rgb_queue.queue.clear()
+        if self._leftrgb_queue:
+            with self._leftrgb_queue.mutex:
+                self._leftrgb_queue.queue.clear()
 
-        if self._big_cam_queue:
-            with self._big_cam_queue.mutex:
-                self._big_cam_queue.queue.clear()
+        if self._rightrgb_queue:
+            with self._rightrgb_queue.mutex:
+                self._rightrgb_queue.queue.clear()
+
+        if self._centralrgb_queue:
+            with self._centralrgb_queue.mutex:
+                self._centralrgb_queue.queue.clear()
+
+        # if self._big_cam_queue:
+        #     with self._big_cam_queue.mutex:
+        #         self._big_cam_queue.queue.clear()
 
     @property
     def pedestrians(self):
@@ -738,7 +747,7 @@ class CarlaWrapper(object):
             carla.Transform(carla.Location(x=2.0, z=1.4), carla.Rotation(pitch=-15.0, yaw=0, roll=0)),
             attach_to=self._player)
 
-        centralrgb_camera.listen(self._rightrgb_queue.put)
+        centralrgb_camera.listen(self._centralrgb_queue.put)
         self._actor_dict['sensor'].append(centralrgb_camera)
 
 
