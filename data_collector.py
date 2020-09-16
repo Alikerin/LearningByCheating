@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-09-14T12:39:41+01:00
+# @Last modified time: 2020-09-16T15:29:07+01:00
 
 
 
@@ -244,6 +244,7 @@ def main(params):
             with lmdb_env.begin(write=True) as txn:
                 txn.put('len'.encode(), str(n).encode())
 
+                #i added this
                 for i, x in enumerate(data):
                     txn.put(
                             ('leftrgb_%04d' % i).encode(),
