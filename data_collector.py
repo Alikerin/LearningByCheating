@@ -21,6 +21,7 @@ python3 bird_view/data_collector.py \
         --n_vehicles 0 \
         --n_pedestrians 0
 """
+import torchvision
 import argparse
 
 from pathlib import Path
