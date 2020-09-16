@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-09-14T18:34:47+01:00
+# @Last modified time: 2020-09-16T12:33:52+01:00
 
 
 
@@ -612,7 +612,7 @@ class ModuleWorld(object):
                 'position': np.float32([pos.x, pos.y, pos.z]),
                 'orientation': np.float32([ori.x, ori.y]),
                 'velocity': np.float32([vel.x, vel.y, vel.z]),
-                'rotation': np.float32([rot.x, rot.y, rot.z]),
+                'rotation': np.float32([rot.pitch, rot.roll, rot.yaw]),
                 'acceleration': np.float32([acc.x, acc.y, acc.z])
                 }
 
