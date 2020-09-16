@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-09-14T18:36:19+01:00
+# @Last modified time: 2020-09-16T12:23:57+01:00
 
 
 
@@ -557,8 +557,17 @@ class CarlaWrapper(object):
             self.tick()
             self.get_observations()
 
-        with self._rgb_queue.mutex:
-            self._rgb_queue.queue.clear()
+        # with self._rgb_queue.mutex:
+        #     self._rgb_queue.queue.clear()
+
+        with self._leftrgb_queue.mutex:
+            self._leftrgb_queue.queue.clear()
+
+        with self._rightrgb_queue.mutex:
+            self._rightrgb_queue.queue.clear()
+
+        with self._centralrgb_queue.mutex:
+            self._centralrgb_queue.queue.clear()
 
         self._time_start = time.time()
         self._tick = 0
