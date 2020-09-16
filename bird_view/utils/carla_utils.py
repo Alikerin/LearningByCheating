@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-09-16T12:23:57+01:00
+# @Last modified time: 2020-09-16T12:29:04+01:00
 
 
 
@@ -587,8 +587,8 @@ class CarlaWrapper(object):
         self.peds_tracker.tick()
 
         # Put here for speed (get() busy polls queue).
-        while self.rgb_image is None or self._rgb_queue.qsize() > 0:
-            self.rgb_image = self._rgb_queue.get()
+        # while self.rgb_image is None or self._rgb_queue.qsize() > 0:
+        #     self.rgb_image = self._rgb_queue.get()
 
         # if self._big_cam:
         #     while self.big_cam_image is None or self._big_cam_queue.qsize() > 0:
