@@ -2,7 +2,7 @@
 # @Date:   2020-08-23T06:08:25+01:00
 # @Email:  sibrahim1396@gmail.com
 # @Last modified by:   yusuf
-# @Last modified time: 2020-09-16T12:29:04+01:00
+# @Last modified time: 2020-09-18T08:38:58+01:00
 
 
 
@@ -722,8 +722,8 @@ class CarlaWrapper(object):
         #add my cameras
         self._leftrgb_queue = queue.Queue()
         leftrgb_bp = self._blueprints.find('sensor.camera.rgb')
-        leftrgb_bp.set_attribute('image_size_x', '800')
-        leftrgb_bp.set_attribute('image_size_y', '600')
+        leftrgb_bp.set_attribute('image_size_x', '200')
+        leftrgb_bp.set_attribute('image_size_y', '88')
         leftrgb_bp.set_attribute('fov', '100')
         leftrgb_camera = self._world.spawn_actor(
             leftrgb_bp,
@@ -735,8 +735,8 @@ class CarlaWrapper(object):
 
         self._rightrgb_queue = queue.Queue()
         rightrgb_bp = self._blueprints.find('sensor.camera.rgb')
-        rightrgb_bp.set_attribute('image_size_x', '800')
-        rightrgb_bp.set_attribute('image_size_y', '600')
+        rightrgb_bp.set_attribute('image_size_x', '200')
+        rightrgb_bp.set_attribute('image_size_y', '88')
         rightrgb_bp.set_attribute('fov', '100')
         rightrgb_camera = self._world.spawn_actor(
             rightrgb_bp,
@@ -748,8 +748,8 @@ class CarlaWrapper(object):
 
         self._centralrgb_queue = queue.Queue()
         centralrgb_bp = self._blueprints.find('sensor.camera.rgb')
-        centralrgb_bp.set_attribute('image_size_x', '800')
-        centralrgb_bp.set_attribute('image_size_y', '600')
+        centralrgb_bp.set_attribute('image_size_x', '200')
+        centralrgb_bp.set_attribute('image_size_y', '88')
         centralrgb_bp.set_attribute('fov', '100')
         centralrgb_camera = self._world.spawn_actor(
             centralrgb_bp,

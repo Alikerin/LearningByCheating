@@ -1,0 +1,12 @@
+@Author: Ibrahim Salihu Yusuf <yusuf>
+@Date:   2020-09-18T08:34:38+01:00
+@Email:  sibrahim1396@gmail.com
+@Last modified by:   yusuf
+@Last modified time: 2020-09-18T08:37:09+01:00
+
+Commands for collecting data using LBC data_collector
+
+1. conda activate carla_0.9.6
+2. cd LearningByCheating/
+3. export PYTHONPATH="`pwd`/PythonAPI:$PYTHONPATH"
+4. python data_collector.py --dataset_path just_work4 --nodisplay --frame_skip 10 --n_episodes 1
