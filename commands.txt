@@ -6,7 +6,8 @@
 
 Commands for collecting data using LBC data_collector
 
-1. conda activate carla_0.9.6
-2. cd LearningByCheating/
-3. export PYTHONPATH="`pwd`/PythonAPI:$PYTHONPATH"
-4. python data_collector.py --dataset_path just_work4 --nodisplay --frame_skip 10 --n_episodes 1
+conda activate carla_0.9.6
+cd LearningByCheating/
+export PYTHONPATH="`pwd`/PythonAPI:$PYTHONPATH"
+docker run -p 2000-2002:2000-2002 --runtime=nvidia --gpus all carlasim/carla:0.9.6 /bin/bash CarlaUE4.sh -fps=10 -benchmark
+python data_collector.py --dataset_path CoILTrain --nodisplay --n_episodes 20
